@@ -2,6 +2,8 @@ package com.safeer.jiraclone.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
 
@@ -19,21 +21,21 @@ public class Task {
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
 
-    @Column(updatable = false, nullable = false)
+    @Column(name = "workspace_id" ,updatable = false, nullable = false)
     private String workspaceId;
 
     @Column(nullable = false)
     private String name;
 
-    @Column(updatable = false, nullable = false)
+    @Column(name = "project_id", updatable = false, nullable = false)
     private String projectId;
 
-    @Column(updatable = false, nullable = false)
+    @Column(name="assignee_id",updatable = false, nullable = false)
     private String assigneeId;
 
     private String description;
 
-    @Column(nullable = false)
+    @Column(name="due_date",nullable = false)
     private LocalDateTime dueDate;
 
     @Column(nullable = false)
@@ -42,9 +44,11 @@ public class Task {
     @Column(nullable = false)
     private int position;
 
-    @Column(updatable = false, nullable = false)
+    @CreationTimestamp
+    @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    @Column(nullable = false)
+    @UpdateTimestamp
+    @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 }

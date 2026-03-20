@@ -1,12 +1,14 @@
 package com.safeer.jiraclone.service;
 
 import com.safeer.jiraclone.dto.LoginUserDto;
-import com.safeer.jiraclone.dto.RegisterUserResponseDto;
+import com.safeer.jiraclone.dto.UserDetailsDto;
 import com.safeer.jiraclone.entity.User;
 import com.safeer.jiraclone.repository.UserRepository;
 import com.safeer.jiraclone.service.serviceInterfaces.AuthServiceInter;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -31,8 +33,11 @@ public class AuthService implements AuthServiceInter {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    @Autowired
+    private ApplicationContext context;
+
     @Override
-    public RegisterUserResponseDto register(User signUpUser){
+    public UserDetailsDto register(User signUpUser){
 
         User user = userRepository.findByUsername(signUpUser.getUsername());
 
@@ -42,7 +47,7 @@ public class AuthService implements AuthServiceInter {
 
         user = userRepository.save(signUpUser);
 
-        return modelMapper.map(user, RegisterUserResponseDto.class);
+        return modelMapper.map(user, UserDetailsDto.class);
     }
 
     @Override
@@ -60,5 +65,22 @@ public class AuthService implements AuthServiceInter {
         }
 
         throw new IllegalArgumentException("Invalid User");
+    }
+
+    public UserDetailsDto getCurrentUser(HttpHeaders headers){
+        String authHeader = headers.getFirst("Authorization");
+        String token = null;
+        String username = null;
+
+        if(authHeader != null && authHeader.startsWith("Bearer ")){
+            token = authHeader.substring(7);
+            username = jwtService.extractUsername(token);
+        }
+
+        if(token != null && username != null){
+            return modelMapper.map(userRepository.findByUsername(username), UserDetailsDto.class);
+        }
+
+        throw new IllegalArgumentException("Invalid token");
     }
 }

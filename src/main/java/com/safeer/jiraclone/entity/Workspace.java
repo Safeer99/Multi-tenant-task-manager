@@ -3,6 +3,10 @@ package com.safeer.jiraclone.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
 
 import java.time.LocalDateTime;
 
@@ -20,19 +24,21 @@ public class Workspace {
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
 
-    @Column(updatable = false, nullable = false)
+    @Column(name = "user_id", updatable = false, nullable = false)
     private String userId;
 
     @Column(nullable = false)
     private String name;
 
-    @Column(nullable = false)
+    @Column(name="invite_code",nullable = false)
     private int inviteCode;
 
-    @Column(updatable = false, nullable = false)
+    @CreationTimestamp
+    @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    @Column(nullable = false)
+    @UpdateTimestamp
+    @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
 }
