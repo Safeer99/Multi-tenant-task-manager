@@ -4,8 +4,10 @@ import com.safeer.jiraclone.dto.AddProjectDto;
 import com.safeer.jiraclone.entity.Member;
 import com.safeer.jiraclone.entity.Project;
 import com.safeer.jiraclone.entity.Role;
+import com.safeer.jiraclone.entity.Task;
 import com.safeer.jiraclone.repository.MemberRepository;
 import com.safeer.jiraclone.repository.ProjectRepository;
+import com.safeer.jiraclone.repository.TaskRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,6 +23,9 @@ public class ProjectService {
 
     @Autowired
     private MemberRepository memberRepository;
+
+    @Autowired
+    private TaskRepository taskRepository;
 
     @Autowired
     private ModelMapper modelMapper;
@@ -104,6 +109,10 @@ public class ProjectService {
         }
 
 //        TODO: delete tasks
+
+        List<Task> tasks = taskRepository.findAllByProjectId(id);
+        List<String> tasksIds = tasks.stream().map(Task::getId).toList();
+        taskRepository.deleteAllById(tasksIds);
 
         projectRepository.deleteById(id);
     }

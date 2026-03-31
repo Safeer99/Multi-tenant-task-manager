@@ -1,6 +1,8 @@
 package com.safeer.jiraclone.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -38,9 +40,12 @@ public class Task {
     @Column(name="due_date",nullable = false)
     private LocalDateTime dueDate;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Status status;
 
+    @Min(1000)
+    @Max(1000000)
     @Column(nullable = false)
     private int position;
 

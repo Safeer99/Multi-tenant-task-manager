@@ -1,10 +1,10 @@
 package com.safeer.jiraclone.service;
 
 import com.safeer.jiraclone.dto.AddWorkspaceDto;
-import com.safeer.jiraclone.entity.Member;
-import com.safeer.jiraclone.entity.Role;
-import com.safeer.jiraclone.entity.Workspace;
+import com.safeer.jiraclone.entity.*;
 import com.safeer.jiraclone.repository.MemberRepository;
+import com.safeer.jiraclone.repository.ProjectRepository;
+import com.safeer.jiraclone.repository.TaskRepository;
 import com.safeer.jiraclone.repository.WorkspaceRepository;
 import jakarta.validation.Valid;
 import org.modelmapper.ModelMapper;
@@ -23,6 +23,12 @@ public class WorkspaceService {
 
     @Autowired
     private MemberRepository memberRepository;
+
+    @Autowired
+    private ProjectRepository projectRepository;
+
+    @Autowired
+    private TaskRepository taskRepository;
 
     @Autowired
     private ModelMapper modelMapper;
@@ -101,6 +107,18 @@ public class WorkspaceService {
         }
 
 //        TODO: delete members, projects and tasks
+
+        List<Member> members = memberRepository.findAllByWorkspaceId(id);
+        List<Project> projects = projectRepository.findAllByWorkspaceId(id);
+        List<Task> tasks = taskRepository.findAllByWorkspaceId(id);
+
+        List<String> membersIds = members.stream().map(Member::getId).toList();
+        List<String> projectsIds = projects.stream().map(Project::getId).toList();
+        List<String> tasksIds = tasks.stream().map(Task::getId).toList();
+
+        taskRepository.deleteAllById(tasksIds);
+        projectRepository.deleteAllById(projectsIds);
+        memberRepository.deleteAllById(membersIds);
 
         workspaceRepository.deleteById(id);
     }

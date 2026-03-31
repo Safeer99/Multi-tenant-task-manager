@@ -11,16 +11,12 @@ import com.safeer.jiraclone.repository.TaskRepository;
 import com.safeer.jiraclone.repository.UserRepository;
 import com.safeer.jiraclone.specification.TaskSpecifications;
 import jakarta.validation.Valid;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 @Service
 public class TaskService {
@@ -36,9 +32,6 @@ public class TaskService {
 
     @Autowired
     private TaskRepository taskRepository;
-
-    @Autowired
-    private ModelMapper modelMapper;
 
     public List<TasksProjectAssigneeDetailsDto> filterTasks(String userId, Map<String, String> filters){
 
@@ -168,10 +161,21 @@ public class TaskService {
                         ? highestPositionTask.getPosition() + 1000
                         : 1000;
 
-        Task newTask = modelMapper.map(addTaskDto, Task.class);
+//        Task newTask = modelMapper.map(addTaskDto, Task.class);
+//        newTask.setPosition(newPosition);
+//        newTask.setId(null);
 
-        newTask.setPosition(newPosition);
-        newTask.setId(null);
+        Task newTask = Task.builder()
+                .workspaceId(addTaskDto.getWorkspaceId())
+                .projectId(addTaskDto.getProjectId())
+                .assigneeId(addTaskDto.getAssigneeId())
+                .status(addTaskDto.getStatus())
+                .description(addTaskDto.getDescription())
+                .name(addTaskDto.getName())
+                .dueDate(addTaskDto.getDueDate())
+                .position(newPosition)
+                .id(null)
+                .build();
 
         return taskRepository.save(newTask);
     }
@@ -235,11 +239,12 @@ public class TaskService {
         taskRepository.deleteById(id);
     }
 
-    public List<Task> bulkUpdateTasks(String userId, List<BulkUpdateTasksDto> tasks) {
+    public List<Task> bulkUpdateTasks(String userId, List<BulkUpdateTasksDto> updates) {
 
-        List<String> taskIds = tasks.stream().map(BulkUpdateTasksDto::getId).toList();
+        List<String> taskIds = updates.stream().map(BulkUpdateTasksDto::getId).toList();
 
         List<Task> tasksToUpdate = taskRepository.findAllById(taskIds);
+
 
         Set<String> workspaceIds = new HashSet<>();
         tasksToUpdate.forEach(task -> workspaceIds.add(task.getWorkspaceId()));
@@ -256,14 +261,16 @@ public class TaskService {
 
         tasksToUpdate = tasksToUpdate.stream().peek(task -> {
 
-            BulkUpdateTasksDto updatedTask = tasks.stream().filter(t ->
-                    t.getId().equals(task.getId())).toList().getFirst();
+            BulkUpdateTasksDto updatedTask = updates.stream().filter(u ->
+                    u.getId().equals(task.getId())).toList().getFirst();
 
             task.setPosition(updatedTask.getPosition());
             task.setStatus(updatedTask.getStatus());
 
         }).toList();
 
+
         return taskRepository.saveAll(tasksToUpdate);
+
     }
 }

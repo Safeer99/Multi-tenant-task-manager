@@ -30,7 +30,7 @@ public class TaskSpecifications {
 
     public static Specification<Task> containsName(String search){
         return (root, query, criteriaBuilder) ->
-                criteriaBuilder.like(root.get("name"), search);
+                criteriaBuilder.like(root.get("name"), "%"+search+"%");
     }
 
     public static Specification<Task> hasDueDate(LocalDateTime dueDate){
